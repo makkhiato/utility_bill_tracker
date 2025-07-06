@@ -1,7 +1,7 @@
 from flask import Flask
 from .config import Config
 from .extensions import db, migrate
-from .routes import api_routes
+from .routes import register_routes
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,7 +12,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app,db)
-    app.register_blueprint(api_routes)
+    register_routes(app)
 
     with app.app_context():
         from . import models

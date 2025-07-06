@@ -1,7 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*.so
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
 
 # Virtual environment
 venv/
@@ -10,9 +13,11 @@ venv/
 # PyCharm project files
 .idea/
 
-# SQLite DB (if using)
-*.sqlite3
-
 # Mac OS and Windows files
 .DS_Store
 Thumbs.db
+
+migrations/__pycache__/
+
+instance/
+.flaskenv

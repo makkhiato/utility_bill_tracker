@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 import numpy as np
@@ -18,7 +18,7 @@ def get_analytics():
         return jsonify({'error':'Missing start_month parameter'}), 400
 
     try:
-        start_date = datetime.strptime(start_month, '%Y-%m')
+        start_date = datetime.strptime(start_month, '%Y-%m').date()
     except ValueError:
         return jsonify({'error':'Invalid start_month format (use YYYY-MM)'}), 400
 
@@ -51,7 +51,7 @@ def get_analytics():
     for month in month_labels:
         data.append({
             'month': month,
-            'total ': round(totals.get(month, 0), 2)
+            'total': round(totals.get(month, 0), 2)
         })
 
     return jsonify(data), 200
@@ -63,19 +63,12 @@ def predict_next_month():
     months = int(request.args.get('months', 6))
     utility_type_filter = request.args.get('utility_type')
 
-    end_date = datetime.now(timezone.utc).replace(day=1)
-    start_date = end_date - relativedelta(months=months)
-
-    query = Bill.query.filter(
-        Bill.user_id == user.id,
-        Bill.billing_date >= start_date,
-        Bill.billing_date < end_date
-    )
+    query = Bill.query.filter(Bill.user_id == user.id)
 
     if utility_type_filter:
         query = query.filter_by(utility_type=utility_type_filter)
 
-    bills = query.all()
+    bills = query.order_by(Bill.billing_date).all()
 
     grouped = defaultdict(lambda: defaultdict(float))
     for bill in bills:
@@ -85,22 +78,21 @@ def predict_next_month():
     predictions = []
 
     for utility_type, month_data in grouped.items():
-        sorted_months = sorted(month_data.keys())
+        sorted_months = sorted(month_data.keys())[-months:]
+        values = [month_data[m] for m in sorted_months]
 
-        x = np.arange(len(sorted_months))
-        y = np.array([month_data[m] for m in sorted_months])
-
-        if len(x) < 2:
+        if len(values) < 2:
             continue
 
-        a, b = np.polyfit(x, y, 1)
+        alpha = 0.5
+        smoothed = values[0]
 
-        next_x = len(x)
-        predicted = round(float(a * next_x + b), 2)
+        for val in values[1:]:
+            smoothed = alpha * val + (1 - alpha) * smoothed
 
         predictions.append({
             'utility_type': utility_type,
-            'predicted': max(predicted, 0.0)
+            'predicted': smoothed
         })
 
     if utility_type_filter:

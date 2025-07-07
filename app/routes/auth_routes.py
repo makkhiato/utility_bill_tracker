@@ -4,7 +4,7 @@ from app.extensions import db
 
 auth_bp = Blueprint('auth',__name__)
 
-@auth_bp.routes('/register',methods=['POST'])
+@auth_bp.route('/register',methods=['POST'])
 def register():
     data = request.get_json()
     name = data.get('name')

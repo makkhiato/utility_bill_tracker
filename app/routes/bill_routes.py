@@ -54,7 +54,7 @@ def get_bill(bill_id):
         'status': bill.status
     }), 200
 
-@bill_bp.route('/bills/<int:bill.id>',methods=['PUT'])
+@bill_bp.route('/bills/<int:bill_id>',methods=['PUT'])
 def update_bill(bill_id):
     bill = Bill.query.get_or_404(bill_id)
     data = request.get_json()

@@ -100,3 +100,28 @@ def predict_next_month():
         return jsonify(result or {'utility_type': utility_type_filter, 'predicted': 0.0})
 
     return jsonify(predictions), 200
+
+@analytics_bp.route('/analytics/breakdown',methods=['GET'])
+def unpaid_breakdown():
+    user = User.query.first() # TEMP: auth later
+
+    bills = Bill.query.filter_by(user_id=user.id, status='unpaid'),all()
+
+    utility_totals = defaultdict(float)
+    total = 0.0
+    for bill in bills:
+        utility_totals[bill.utility_type] += bill.amount
+        total += bill.amount
+
+    breakdown = []
+    for utility_type, amount in utility_totals.items():
+        breakdown.append({
+            'utility_type': utility_type,
+            'amount': round(amount, 2),
+            'percentage': round((amount / total) * 100, 2) if total > 0 else 0
+        })
+
+        return jsonify({
+            'total': round(total, 2),
+            'breakdown': breakdown
+        }), 200

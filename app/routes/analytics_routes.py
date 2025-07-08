@@ -105,7 +105,7 @@ def predict_next_month():
 def unpaid_breakdown():
     user = User.query.first() # TEMP: auth later
 
-    bills = Bill.query.filter_by(user_id=user.id, status='unpaid'),all()
+    bills = Bill.query.filter_by(user_id=user.id, status='unpaid').all()
 
     utility_totals = defaultdict(float)
     total = 0.0
@@ -121,7 +121,7 @@ def unpaid_breakdown():
             'percentage': round((amount / total) * 100, 2) if total > 0 else 0
         })
 
-        return jsonify({
-            'total': round(total, 2),
-            'breakdown': breakdown
-        }), 200
+    return jsonify({
+        'total': round(total, 2),
+        'breakdown': breakdown
+    }), 200

@@ -44,15 +44,3 @@ def login():
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify(access_token=access_token), 200
-
-@auth_bp.route('/debug/users',methods=['GET'])
-def debug_users():
-    users = User.query.all()
-    return jsonify([
-        {
-            'user_id': user.id,
-            'email': user.email,
-            'password_hash': user.password_hash
-        }
-        for user in users
-    ]), 200

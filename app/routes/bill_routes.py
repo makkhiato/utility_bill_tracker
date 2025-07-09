@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from app.utils.auth import get_current_user
 from datetime import datetime
 from app.models import Bill, User
 from app.extensions import db
@@ -6,8 +8,9 @@ from app.extensions import db
 bill_bp = Blueprint('bill',__name__)
 
 @bill_bp.route('/bills',methods=['GET'])
+@jwt_required()
 def get_bills():
-    user = User.query.first() #TEMP: replace with auth later
+    user = get_current_user()
     bills = Bill.query.filter_by(user_id=user.id).all()
 
     return jsonify([
@@ -23,8 +26,9 @@ def get_bills():
     ]), 200
 
 @bill_bp.route('/bills',methods=['POST'])
+@jwt_required()
 def create_bill():
-    user = User.query.first() #TEMP
+    user = get_current_user()
 
     data = request.get_json()
 
@@ -49,8 +53,13 @@ def create_bill():
     return jsonify({'message': 'Bill added successfully', 'id':bill.id}), 201
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['GET'])
+@jwt_required()
 def get_bill(bill_id):
+    user = get_current_user()
     bill = Bill.query.get_or_404(bill_id)
+
+    if bill.user_id != user.id:
+        return jsonify({'error': 'Unauthorized access to this bill'})
 
     return jsonify({
         'id': bill.id,
@@ -62,14 +71,14 @@ def get_bill(bill_id):
     }), 200
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['PUT'])
+@jwt_required()
 def update_bill(bill_id):
-    bill = Bill.query.get_or_404(bill_id)
+    user = get_current_user()
+    bill = Bill.query.filter_by(id=bill_id, user_id=user).first_or_404()
     data = request.get_json()
 
     bill.utility_type = data.get('utility_type', bill.utility_type)
     bill.amount = data.get('amount', bill.amount)
-    # bill.billing_date = data.get('billing_date', bill.billing_date)
-    # bill.due_date = data.get('due_date', bill.due_date)
 
     if 'billing_date' in data:
         try:
@@ -90,8 +99,12 @@ def update_bill(bill_id):
     return jsonify({'message':'Bill updated successfully'}), 200
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['DELETE'])
+@jwt_required()
 def delete_bill(bill_id):
-    bill = Bill.query.get_or_404(bill_id)
+    user = get_current_user()
+    bill = Bill.query.filter_by(id=bill_id, user_id=user).first_or_404()
+
     db.session.delete(bill)
     db.session.commit()
+
     return jsonify({'message':'Bill deleted successfully'}), 200

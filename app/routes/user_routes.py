@@ -1,13 +1,15 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from app.utils.auth import get_current_user
 from app.models import User
 from app.extensions import db
 
 user_bp = Blueprint('user',__name__)
 
 @user_bp.route('/settings',methods=['GET'])
+@jwt_required()
 def get_settings():
-    # TEMP: using first user for now (since no auth yet)
-    user = User.query.first()
+    user = get_current_user()
 
     if not user or not user.settings:
         return jsonify(({'error':'Settings not found'})), 404
@@ -20,8 +22,9 @@ def get_settings():
     return jsonify(settings), 200
 
 @user_bp.route('/settings',methods=['PUT'])
+@jwt_required()
 def update_settings():
-    user = User.query.first() # TEMP: no auth yet
+    user = get_current_user()
 
     if not user or not user.settings:
         return jsonify({'error':'Settings not found'}), 404
@@ -42,8 +45,9 @@ def update_settings():
     return jsonify({'message':'Settings updated successfully'}), 200
 
 @user_bp.route('/user',methods=['PUT'])
+@jwt_required()
 def update_user():
-    user = User.query.first() # TEMP: use authenticated user later
+    user = get_current_user()
     if not user:
         return jsonify({'error':'User not found'}), 404
 

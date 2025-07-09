@@ -1,15 +1,18 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from datetime import datetime, timedelta, timezone, date
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 import numpy as np
+from app.utils.auth import get_current_user
 from app.models import Bill, User
 
 analytics_bp = Blueprint('analytics',__name__)
 
 @analytics_bp.route('/analytics',methods=['GET'])
+@jwt_required()
 def get_analytics():
-    user = User.query.first() #TEMP: replace with auth user later
+    user = get_current_user()
 
     start_month = request.args.get('start_month')
     utility_type = request.args.get('utility_type')
@@ -57,8 +60,9 @@ def get_analytics():
     return jsonify(data), 200
 
 @analytics_bp.route('/analytics/predict',methods=['GET'])
+@jwt_required()
 def predict_next_month():
-    user = User.query.first() # TEMP: replace with auth later
+    user = get_current_user()
 
     months = int(request.args.get('months', 6))
     utility_type_filter = request.args.get('utility_type')
@@ -92,7 +96,7 @@ def predict_next_month():
 
         predictions.append({
             'utility_type': utility_type,
-            'predicted': smoothed
+            'predicted': round(smoothed, 2)
         })
 
     if utility_type_filter:
@@ -102,8 +106,9 @@ def predict_next_month():
     return jsonify(predictions), 200
 
 @analytics_bp.route('/analytics/breakdown',methods=['GET'])
+@jwt_required()
 def unpaid_breakdown():
-    user = User.query.first() # TEMP: auth later
+    user = get_current_user()
 
     bills = Bill.query.filter_by(user_id=user.id, status='unpaid').all()
 

@@ -1,6 +1,6 @@
 from flask import Flask
 from .config import Config
-from .extensions import db, migrate
+from .extensions import db, migrate, jwt
 from .routes import register_routes
 from dotenv import load_dotenv
 load_dotenv()
@@ -12,6 +12,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app,db)
+    jwt.init_app(app)
     register_routes(app)
 
     with app.app_context():

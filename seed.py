@@ -1,8 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
 from app import create_app
 from app.extensions import db
 from app.models import User, Bill, UserSettings
 from datetime import date, timedelta
 import random
+import os
+print("ENV VAR DATABASE_URL =", os.getenv('DATABASE_URL'))
 
 app = create_app()
 

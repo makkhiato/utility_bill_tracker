@@ -7,7 +7,7 @@ from app.extensions import db
 user_bp = Blueprint('user',__name__)
 
 @user_bp.route('/settings',methods=['GET'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def get_settings():
     user = get_current_user()
 
@@ -22,7 +22,7 @@ def get_settings():
     return jsonify(settings), 200
 
 @user_bp.route('/settings',methods=['PUT'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def update_settings():
     user = get_current_user()
 
@@ -45,7 +45,7 @@ def update_settings():
     return jsonify({'message':'Settings updated successfully'}), 200
 
 @user_bp.route('/user',methods=['PUT'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def update_user():
     user = get_current_user()
     if not user:

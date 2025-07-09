@@ -10,7 +10,7 @@ from app.models import Bill, User
 analytics_bp = Blueprint('analytics',__name__)
 
 @analytics_bp.route('/analytics',methods=['GET'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def get_analytics():
     user = get_current_user()
 
@@ -60,7 +60,7 @@ def get_analytics():
     return jsonify(data), 200
 
 @analytics_bp.route('/analytics/predict',methods=['GET'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def predict_next_month():
     user = get_current_user()
 
@@ -106,7 +106,7 @@ def predict_next_month():
     return jsonify(predictions), 200
 
 @analytics_bp.route('/analytics/breakdown',methods=['GET'])
-@jwt_required()
+@jwt_required(refresh=False, locations=['cookies'])
 def unpaid_breakdown():
     user = get_current_user()
 

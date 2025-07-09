@@ -1,11 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from datetime import datetime, timedelta, timezone, date
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
 from collections import defaultdict
-import numpy as np
 from app.utils.auth import get_current_user
-from app.models import Bill, User
+from app.models import Bill
 
 analytics_bp = Blueprint('analytics',__name__)
 

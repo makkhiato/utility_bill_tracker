@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jwt_identity, set_access_cookies, jwt_required,
-                                set_refresh_cookies, unset_jwt_cookies)
-from app.models import User
+                                get_jwt_identity, jwt_required)
+from app.models import User, UserSettings
 from app.extensions import db
 
 auth_bp = Blueprint('auth',__name__)
@@ -24,6 +23,10 @@ def register():
     new_user.set_password(password)
 
     db.session.add(new_user)
+    db.session.commit()
+
+    default_settings = UserSettings(user_id=new_user.id)
+    db.session.add(default_settings)
     db.session.commit()
 
     return jsonify({'message':'User registered successfully'}),201

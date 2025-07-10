@@ -11,7 +11,7 @@ user_bp = Blueprint('user',__name__)
 def get_settings():
     user = get_current_user()
 
-    if not user or not user.settings:
+    if not user:
         return jsonify(({'error':'Settings not found'})), 404
 
     settings = {

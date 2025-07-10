@@ -23,6 +23,12 @@ with app.app_context():
     db.session.add_all([user1, user2])
     db.session.commit()
 
+    settings1 = UserSettings(user_id=user1.id, currency='PHP', dark_mode=False)
+    settings2 = UserSettings(user_id=user2.id, currency='PHP', dark_mode=True)
+
+    db.session.add_all([settings1, settings2])
+    db.session.commit()
+
     users = [user1, user2]
     utility_types = ['electricity', 'water', 'internet']
 

@@ -30,18 +30,18 @@ def get_bills():
         except ValueError:
             return jsonify({'error': 'Invalid month format. Use YYYY-MM.'}), 400
 
-    is_paid_str = request.args.get('is_paid').lower()
+    is_paid_str = request.args.get('is_paid')
     if is_paid_str:
-        if is_paid_str == 'true':
+        if is_paid_str.lower() == 'true':
             bills_query = bills_query.filter(Bill.status == 'paid')
-        elif is_paid_str == 'false':
+        elif is_paid_str.lower() == 'false':
             bills_query = bills_query.filter(Bill.status == 'unpaid')
         else:
             return jsonify({'error': 'is_paid must be true or false'}), 400
 
-    utility_type = request.args.get('utility_type').lower()
+    utility_type = request.args.get('utility_type')
     if utility_type:
-        bills_query = bills_query.filter(Bill.utility_type == utility_type)
+        bills_query = bills_query.filter(Bill.utility_type == utility_type.lower())
 
     sort_by = request.args.get('sort_by')
     if sort_by:

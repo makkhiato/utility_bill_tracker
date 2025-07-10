@@ -46,26 +46,20 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    response = jsonify({'msg': 'Login successful'})
-
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
-
-    return response, 200
+    return jsonify({
+        'access_token': access_token,
+        'refresh_token': refresh_token
+    }), 200
 
 @auth_bp.route('/refresh',methods=['POST'])
-@jwt_required(refresh=True, locations=['cookies'])
+@jwt_required(refresh=True)
 def refresh():
     current_user_id = get_jwt_identity()
     new_access_token = create_access_token(identity=current_user_id)
 
-    response = jsonify({'msg': 'Token refreshed'})
-    set_access_cookies(response, new_access_token)
-
-    return response, 200
+    return jsonify({'access_token':new_access_token}), 200
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     response = jsonify({'msg': 'Logout successful'})
-    unset_jwt_cookies(response)
     return response, 200

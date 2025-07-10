@@ -8,7 +8,7 @@ from app.extensions import db
 bill_bp = Blueprint('bill',__name__)
 
 @bill_bp.route('/bills',methods=['GET'])
-@jwt_required(refresh=False, locations=['cookies'])
+@jwt_required(refresh=False)
 def get_bills():
     user = get_current_user()
     bills_query = Bill.query.filter_by(user_id=user.id)
@@ -87,7 +87,7 @@ def get_bills():
     ]), 200
 
 @bill_bp.route('/bills',methods=['POST'])
-@jwt_required(refresh=False, locations=['cookies'])
+@jwt_required(refresh=False)
 def create_bill():
     user = get_current_user()
 
@@ -114,7 +114,7 @@ def create_bill():
     return jsonify({'message': 'Bill added successfully', 'id':bill.id}), 201
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['GET'])
-@jwt_required(refresh=False, locations=['cookies'])
+@jwt_required(refresh=False)
 def get_bill(bill_id):
     user = get_current_user()
     bill = Bill.query.get_or_404(bill_id)
@@ -132,7 +132,7 @@ def get_bill(bill_id):
     }), 200
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['PUT'])
-@jwt_required(refresh=False, locations=['cookies'])
+@jwt_required(refresh=False)
 def update_bill(bill_id):
     user = get_current_user()
     bill = Bill.query.filter_by(id=bill_id, user_id=user).first_or_404()
@@ -160,7 +160,7 @@ def update_bill(bill_id):
     return jsonify({'message':'Bill updated successfully'}), 200
 
 @bill_bp.route('/bills/<int:bill_id>',methods=['DELETE'])
-@jwt_required(refresh=False, locations=['cookies'])
+@jwt_required(refresh=False)
 def delete_bill(bill_id):
     user = get_current_user()
     bill = Bill.query.filter_by(id=bill_id, user_id=user).first_or_404()

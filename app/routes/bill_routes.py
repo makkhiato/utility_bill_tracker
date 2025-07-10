@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required
 from app.utils.auth import get_current_user
-from datetime import datetime
+from datetime import date, datetime
 from app.models import Bill
 from app.extensions import db
 
@@ -10,9 +10,69 @@ bill_bp = Blueprint('bill',__name__)
 @bill_bp.route('/bills',methods=['GET'])
 @jwt_required(refresh=False, locations=['cookies'])
 def get_bills():
-    print(get_jwt())
     user = get_current_user()
-    bills = Bill.query.filter_by(user_id=user.id).all()
+    bills_query = Bill.query.filter_by(user_id=user.id)
+
+    month_str = request.args.get('month')
+    if month_str:
+        try:
+            year, month = map(int, month_str.split('-'))
+            start_date = date(year, month, 1)
+            if month == 12:
+                end_date = date(year + 1, 1, 1)
+            else:
+                end_date = date(year, month + 1, 1)
+
+            bills_query = bills_query.filter(
+                Bill.billing_date >= start_date,
+                Bill.billing_date < end_date
+            )
+        except ValueError:
+            return jsonify({'error': 'Invalid month format. Use YYYY-MM.'}), 400
+
+    is_paid_str = request.args.get('is_paid').lower()
+    if is_paid_str:
+        if is_paid_str == 'true':
+            bills_query = bills_query.filter(Bill.status == 'paid')
+        elif is_paid_str == 'false':
+            bills_query = bills_query.filter(Bill.status == 'unpaid')
+        else:
+            return jsonify({'error': 'is_paid must be true or false'}), 400
+
+    utility_type = request.args.get('utility_type').lower()
+    if utility_type:
+        bills_query = bills_query.filter(Bill.utility_type == utility_type)
+
+    sort_by = request.args.get('sort_by')
+    if sort_by:
+        sort_fields = sort_by.split(',')
+        sort_clauses = []
+
+        for field in sort_fields:
+            desc = field.startswith('-')
+            field_name = field[1:] if desc else field
+
+            if hasattr(Bill, field_name):
+                column = getattr(Bill, field_name)
+                sort_clauses.append(column.desc() if desc else column.asc())
+            else:
+                return jsonify({'error':f'Invalid sort_by field: {field_name}'}), 400
+
+        if sort_clauses:
+            bills_query = bills_query.order_by(*sort_clauses)
+
+
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        if page < 1 or limit < 1:
+            raise ValueError
+    except ValueError:
+        return jsonify({'error': 'page and limit must be positive integers'}), 400
+
+    bills_query = bills_query.offset((page - 1) * limit).limit(limit)
+
+    bills = bills_query.all()
 
     return jsonify([
         {

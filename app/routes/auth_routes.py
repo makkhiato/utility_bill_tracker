@@ -61,8 +61,3 @@ def refresh():
     new_access_token = create_access_token(identity=current_user_id)
 
     return jsonify({'access_token':new_access_token}), 200
-
-@auth_bp.route('/logout', methods=['POST'])
-def logout():
-    response = jsonify({'msg': 'Logout successful'})
-    return response, 200

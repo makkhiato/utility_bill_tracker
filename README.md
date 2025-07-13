@@ -117,19 +117,19 @@ utility_bill_tracker/
     │
     ├── app/
     │   ├── routes/
-    │   │   ├──__init__.py
-    │   │   ├──analytics_route.py
-    │   │   ├──auth_routes.py
-    │   │   ├──bill_routes.py
-    │   │   ├──notifications_route.py
-    │   │   ├──user_routes.py
+    │   │   ├── __init__.py
+    │   │   ├── analytics_route.py
+    │   │   ├── auth_routes.py
+    │   │   ├── bill_routes.py
+    │   │   ├── notifications_route.py
+    │   │   └── user_routes.py
     │   ├── utils/
     │   │   ├── auth.py
-    │   │   ├── scheduled_notif.py
+    │   │   └── scheduled_notif.py
     │   ├── __init__.py
     │   ├── config.py
     │   ├── extensions.py
-    │   ├── models.py
+    │   └── models.py
     ├── .env.example
     ├── .gitignore
     ├── README.md

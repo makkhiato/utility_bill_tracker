@@ -13,6 +13,7 @@ class User(db.Model):
 
     bills = db.relationship('Bill',backref='user',cascade='all, delete-orphan')
     settings = db.relationship('UserSettings',uselist=False,backref='user',cascade='all, delete-orphan')
+    notifications = db.relationship('Notification', backref='user', lazy=True)
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
@@ -48,3 +49,12 @@ class UserSettings(db.Model):
 
     def __repr__(self):
         return f'<Settings for User {self.user_id}>'
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    is_seen = db.Column(db.Boolean, default=False)

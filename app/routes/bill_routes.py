@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.utils.auth import get_current_user
 from datetime import date, datetime
-from app.models import Bill
+from app.models import Bill, Notification
 from app.extensions import db
 
 bill_bp = Blueprint('bill',__name__)
@@ -109,6 +109,12 @@ def create_bill():
     )
 
     db.session.add(bill)
+    db.session.commit()
+
+    message = f"A new {str(bill.utility_type).capitalize()} bill of {bill.user.settings.currency} {bill.amount:.2f} was added. Due on {bill.due_date}"
+    notification = Notification(user_id=bill.user_id, message=message)
+
+    db.session.add(notification)
     db.session.commit()
 
     return jsonify({'message': 'Bill added successfully', 'id':bill.id}), 201

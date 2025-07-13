@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from app import create_app
 from app.extensions import db
-from app.models import User, Bill, UserSettings
+from app.models import User, Bill, UserSettings, Notification
 from datetime import date, timedelta
 import random
 
@@ -35,6 +35,7 @@ with app.app_context():
     base_date = date(2025, 1, 1)
 
     for user in users:
+        currency = user.settings.currency
         for utility in utility_types:
             for i in range(6):
                 billing_date = base_date + timedelta(days=30 * i)
@@ -51,6 +52,11 @@ with app.app_context():
                     status=status
                 )
                 db.session.add(bill)
+                notification = Notification(
+                    user_id=user.id,
+                    message=f"A new {str(bill.utility_type).capitalize()} bill of {currency} {bill.amount:.2f} was added. Due on {bill.due_date}"
+                )
+                db.session.add(notification)
 
     db.session.commit()
     print('Database seeded successfully')

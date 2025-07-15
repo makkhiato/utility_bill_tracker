@@ -1,10 +1,10 @@
-# ⚙️ Utility Bill Tracker – Backend API
+# Utility Bill Tracker – Backend API
 
 This is the **backend REST API** for the Utility Bill Tracker app, built with Flask. It handles authentication, bill management, user settings, and automatic notifications.
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Flask** (REST API)
 - **Flask-JWT-Extended** (JWT Auth)
@@ -14,7 +14,7 @@ This is the **backend REST API** for the Utility Bill Tracker app, built with Fl
 
 ---
 
-## 🔧 Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the repository
 
